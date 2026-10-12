@@ -1,0 +1,29 @@
+apiVersion: v1.1.0
+kind: DataProduct
+id: orders
+name: Orders
+version: 1.0.0
+status: active
+domain: ecommerce
+description:
+  purpose: Source-aligned data product exposing orders and line items from the e-commerce platform.
+  limitations: Contains PII (customer email addresses). Access requires approval by the Order Data Team.
+tags: ['orders', 'ecommerce']
+outputPorts:
+- name: orders_v1
+  description: Orders and line items tables in PostgreSQL (v1, superseded by v2)
+  version: 1.0.0
+  contractId: orders_v1
+- name: orders_v2
+  description: Orders and line items tables in PostgreSQL, including quantity (v2)
+  version: 2.0.0
+  contractId: orders_v2
+team:
+  name: order_data_team
+  members:
+  - username: owner@example.com
+    role: Owner
+support:
+- channel: "#order-data-help"
+  url: https://example.slack.com/archives/order-data-help
+  tool: slack

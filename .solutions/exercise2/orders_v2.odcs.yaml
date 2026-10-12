@@ -1,0 +1,199 @@
+version: 2.0.0
+kind: DataContract
+apiVersion: v3.2.0
+id: orders_v2
+name: Orders
+status: active
+domain: ecommerce
+description:
+  purpose: Order data for analytics and reporting
+  limitations: Contains PII (customer email addresses)
+tags: ['orders', 'ecommerce']
+context:
+  instructions: >-
+    Orders of the e-commerce platform and their line items.
+    order_total is in cents. Timestamps are in UTC.
+    Use this data for order volume and revenue analysis.
+  verifiedStatements:
+  - question: How many orders were placed in 2023?
+    answer: SELECT COUNT(*) FROM orders_v2.orders WHERE EXTRACT(YEAR FROM order_timestamp) = 2023;
+  - question: What was the revenue per year?
+    answer: SELECT EXTRACT(YEAR FROM order_timestamp)::int AS year, SUM(order_total) / 100.0 AS revenue FROM orders_v2.orders GROUP BY 1 ORDER BY 1;
+  constraints:
+  - constraint: Never output customer_email_address or customer_id. Aggregate the data instead.
+    tags: ['pii']
+servers:
+- server: postgres
+  type: postgres
+  host: localhost
+  port: 5433
+  database: workshop
+  schema: orders_v2
+schema:
+- name: orders
+  synonyms:
+  - synonym: purchases
+  - synonym: Bestellungen
+    locale: de
+  context:
+    instructions: One row per order. Join line_items on order_id to get the purchased SKUs.
+  physicalType: table
+  logicalType: object
+  physicalName: orders
+  properties:
+  - name: order_id
+    physicalType: text
+    logicalType: string
+    required: true
+    primaryKey: true
+    primaryKeyPosition: 1
+    quality:
+    - type: text
+      description: Must be a valid UUID
+    - type: sql
+      description: Ensure order_id is unique
+      query: SELECT COUNT(*) FROM (SELECT order_id FROM orders_v2.orders GROUP BY order_id HAVING COUNT(*) > 1) duplicates;
+      mustBe: 0
+  - name: order_timestamp
+    physicalType: timestamp with time zone
+    logicalType: timestamp
+    required: true
+    quality:
+    - type: text
+      description: Must not be in the future
+    - type: sql
+      description: Ensure order_timestamp is not in the future
+      query: SELECT COUNT(*) FROM orders_v2.orders WHERE order_timestamp > CURRENT_TIMESTAMP;
+      mustBe: 0
+  - name: order_total
+    physicalType: bigint
+    logicalType: integer
+    required: true
+    quality:
+    - type: text
+      description: Order total in cents, must be non-negative
+    - type: sql
+      description: Ensure order_total is non-negative
+      query: SELECT COUNT(*) FROM orders_v2.orders WHERE order_total < 0;
+      mustBe: 0
+  - name: customer_id
+    physicalType: text
+    logicalType: string
+    required: true
+    quality:
+    - type: text
+      description: Must be a non-empty alphanumeric identifier
+    - type: sql
+      description: Ensure customer_id is not empty
+      query: SELECT COUNT(*) FROM orders_v2.orders WHERE customer_id IS NULL OR customer_id = '';
+      mustBe: 0
+  - name: customer_email_address
+    physicalType: text
+    logicalType: string
+    required: true
+    classification: confidential
+    examples: ['test394@example.org', 'test4757@example.org']
+    quality:
+    - type: text
+      description: Must be a valid email address
+    - type: sql
+      description: Ensure email addresses contain @
+      query: SELECT COUNT(*) FROM orders_v2.orders WHERE customer_email_address NOT LIKE '%@%';
+      mustBe: 0
+  quality:
+  - type: text
+    description: Orders table must not be empty
+  - type: sql
+    description: Ensure orders table has data
+    query: SELECT COUNT(*) FROM orders_v2.orders;
+    mustBeGreaterThan: 0
+  - type: sql
+    description: Ensure every order has at least one line item
+    query: SELECT COUNT(*) FROM orders_v2.orders o LEFT JOIN orders_v2.line_items li ON o.order_id = li.order_id WHERE li.order_id IS NULL;
+    mustBe: 0
+- name: line_items
+  synonyms:
+  - synonym: order lines
+  - synonym: Bestellpositionen
+    locale: de
+  context:
+    instructions: One row per purchased SKU in an order.
+  physicalType: table
+  logicalType: object
+  physicalName: line_items
+  properties:
+  - name: lines_item_id
+    physicalType: text
+    logicalType: string
+    required: true
+    primaryKey: true
+    primaryKeyPosition: 1
+    quality:
+    - type: text
+      description: Must be a valid UUID
+    - type: sql
+      description: Ensure lines_item_id is unique
+      query: SELECT COUNT(*) FROM (SELECT lines_item_id FROM orders_v2.line_items GROUP BY lines_item_id HAVING COUNT(*) > 1) duplicates;
+      mustBe: 0
+  - name: order_id
+    physicalType: text
+    logicalType: string
+    required: true
+    relationships:
+    - type: foreignKey
+      to: orders.order_id
+  - name: sku
+    synonyms:
+    - synonym: article number
+    - synonym: Artikelnummer
+      locale: de
+    physicalType: text
+    logicalType: string
+    required: true
+    quality:
+    - type: text
+      description: Must be a non-empty product SKU
+    - type: sql
+      description: Ensure sku is not empty
+      query: SELECT COUNT(*) FROM orders_v2.line_items WHERE sku IS NULL OR sku = '';
+      mustBe: 0
+  - name: quantity
+    physicalType: bigint
+    logicalType: integer
+    quality:
+    - type: text
+      description: Must be a positive integer, defaults to 1
+    - type: sql
+      description: Ensure quantity is positive
+      query: SELECT COUNT(*) FROM orders_v2.line_items WHERE quantity <= 0;
+      mustBe: 0
+  quality:
+  - type: text
+    description: Line items table must not be empty
+  - type: sql
+    description: Ensure line_items table has data
+    query: SELECT COUNT(*) FROM orders_v2.line_items;
+    mustBeGreaterThan: 0
+  - type: sql
+    description: Ensure every line_items.order_id exists in orders
+    query: SELECT COUNT(*) FROM orders_v2.line_items li LEFT JOIN orders_v2.orders o ON li.order_id = o.order_id WHERE o.order_id IS NULL;
+    mustBe: 0
+team:
+  name: order_data_team
+  members:
+  - username: owner@example.com
+    role: Owner
+support:
+- channel: "#order-data-help"
+  url: https://example.slack.com/archives/order-data-help
+  tool: slack
+slaProperties:
+- property: retention
+  value: 10
+  unit: y
+  element: orders.order_timestamp
+  description: Orders are deleted after 10 years
+- property: frequency
+  value: 1
+  unit: d
+  description: Data updated daily

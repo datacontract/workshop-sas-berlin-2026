@@ -1,0 +1,76 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.2.0
+id: sku_sales_per_year
+name: SKU Sales per Year
+status: draft
+domain: ecommerce
+description:
+  purpose: Shows how often each SKU is bought, grouped by year. Built for the purchasing team to support supplier negotiations.
+  limitations: Aggregated data only, no PII. Based on the orders data product.
+tags: ['sku', 'sales', 'analytics']
+servers:
+- server: postgres
+  type: postgres
+  host: localhost
+  port: 5433
+  database: workshop
+  schema: analytics
+schema:
+- name: sku_sales_per_year
+  physicalType: view
+  logicalType: object
+  physicalName: sku_sales_per_year
+  properties:
+  - name: sku
+    physicalType: text
+    logicalType: string
+    required: true
+    quality:
+    - type: sql
+      description: Ensure sku and year combination is unique
+      query: SELECT COUNT(*) FROM (SELECT sku, year FROM analytics.sku_sales_per_year GROUP BY sku, year HAVING COUNT(*) > 1) duplicates;
+      mustBe: 0
+  - name: year
+    physicalType: integer
+    logicalType: integer
+    required: true
+    quality:
+    - type: sql
+      description: Ensure year is plausible
+      query: SELECT COUNT(*) FROM analytics.sku_sales_per_year WHERE year < 2020 OR year > 2100;
+      mustBe: 0
+  - name: order_count
+    physicalType: bigint
+    logicalType: integer
+    quality:
+    - type: text
+      description: Number of orders containing the SKU in that year
+    - type: sql
+      description: Ensure order_count is positive
+      query: SELECT COUNT(*) FROM analytics.sku_sales_per_year WHERE order_count <= 0;
+      mustBe: 0
+  - name: total_quantity
+    physicalType: bigint
+    logicalType: integer
+    quality:
+    - type: text
+      description: Total units bought, never less than the number of orders
+    - type: sql
+      description: Ensure total_quantity is at least order_count
+      query: SELECT COUNT(*) FROM analytics.sku_sales_per_year WHERE total_quantity < order_count;
+      mustBe: 0
+  quality:
+  - type: sql
+    description: Ensure the view has data
+    query: SELECT COUNT(*) FROM analytics.sku_sales_per_year;
+    mustBeGreaterThan: 0
+team:
+  name: purchasing_analytics_team
+  members:
+  - username: purchasing@example.com
+    role: Owner
+support:
+- channel: "#purchasing-analytics"
+  url: https://example.slack.com/archives/purchasing-analytics
+  tool: slack

@@ -1,0 +1,62 @@
+version: 2.0.0
+kind: DataContract
+apiVersion: v3.2.0
+id: orders_v2_consumer_sku_sales
+name: Orders (SKU Sales)
+status: active
+domain: ecommerce
+description:
+  purpose: Consumer-driven contract - the fields the SKU Sales data product actually needs from orders_v2
+tags: ['orders', 'sku', 'consumer-driven']
+servers:
+- server: postgres
+  type: postgres
+  host: localhost
+  port: 5433
+  database: workshop
+  schema: sku_sales_input
+schema:
+- name: orders
+  physicalType: view
+  logicalType: object
+  physicalName: orders
+  properties:
+  - name: order_id
+    physicalType: text
+    logicalType: string
+    required: true
+    primaryKey: true
+  - name: order_timestamp
+    physicalType: timestamptz
+    logicalType: date
+    required: true
+- name: line_items
+  physicalType: view
+  logicalType: object
+  physicalName: line_items
+  properties:
+  - name: order_id
+    physicalType: text
+    logicalType: string
+    required: true
+  - name: sku
+    physicalType: text
+    logicalType: string
+    required: true
+  - name: quantity
+    physicalType: bigint
+    logicalType: integer
+    quality:
+    - type: sql
+      description: Ensure quantity is positive
+      query: SELECT COUNT(*) FROM sku_sales_input.line_items WHERE quantity <= 0;
+      mustBe: 0
+team:
+  name: purchasing_analytics_team
+  members:
+  - username: purchasing@example.com
+    role: Owner
+support:
+- channel: "#purchasing-analytics"
+  url: https://example.slack.com/archives/purchasing-analytics
+  tool: slack

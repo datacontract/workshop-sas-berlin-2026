@@ -30,11 +30,18 @@ expect_fail() {
 psql_cmd -c "DROP SCHEMA IF EXISTS analytics CASCADE; DROP SCHEMA IF EXISTS sku_sales_input CASCADE;" > /dev/null
 
 echo "### Exercise 1: contract for orders_v1"
-# step 1: explore the data
-psql_cmd -c '\dt orders_v1.*' -c 'SELECT * FROM orders_v1.orders LIMIT 5;' -c 'SELECT * FROM orders_v1.line_items LIMIT 5;' > /dev/null
+# step 1: the database is up
+psql_cmd -c 'SELECT COUNT(*) FROM orders_v1.orders;' > /dev/null
+# step 2: import the contract from the database, it must match the YAML shown in the exercise
+datacontract import postgres --source localhost --port 5433 --database workshop --schema orders_v1 --id orders_v1 \
+  --output /tmp/orders_v1.imported.odcs.yaml
+sed -n '/^   ```yaml$/,/^   ```$/p' exercises/part-a/exercise1-put-your-data-under-contract.md | sed '1d;$d' | sed 's/^   //' \
+  | diff - /tmp/orders_v1.imported.odcs.yaml
+# step 4: the imported contract passes the tests
+datacontract test /tmp/orders_v1.imported.odcs.yaml
 datacontract lint .solutions/exercise1/orders_v1.odcs.yaml
 datacontract test .solutions/exercise1/orders_v1.odcs.yaml
-# step 8: verify tests can also fail (broken physicalType)
+# step 5: verify tests can also fail (broken schema)
 sed 's/^  - name: customer_email_address$/  - name: customer_email_address_renamed/' \
   .solutions/exercise1/orders_v1.odcs.yaml > /tmp/orders_v1.broken.odcs.yaml
 expect_fail datacontract test /tmp/orders_v1.broken.odcs.yaml

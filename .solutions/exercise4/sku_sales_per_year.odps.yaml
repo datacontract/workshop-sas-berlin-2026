@@ -1,0 +1,28 @@
+apiVersion: v1.1.0
+kind: DataProduct
+id: sku_sales
+name: SKU Sales
+version: 1.0.0
+status: draft
+domain: ecommerce
+description:
+  purpose: Consumer-aligned data product showing how often each SKU is bought per year, used by the purchasing team for supplier negotiations.
+tags: ['sku', 'sales', 'purchasing']
+inputPorts:
+- name: orders
+  version: 2.0.0
+  contractId: orders_v2
+outputPorts:
+- name: sku_sales_per_year
+  description: Aggregated SKU sales per year as a PostgreSQL view
+  version: 1.0.0
+  contractId: sku_sales_per_year
+team:
+  name: purchasing_analytics_team
+  members:
+  - username: purchasing@example.com
+    role: Owner
+support:
+- channel: "#purchasing-analytics"
+  url: https://example.slack.com/archives/purchasing-analytics
+  tool: slack
