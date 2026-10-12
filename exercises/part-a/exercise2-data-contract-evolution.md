@@ -64,7 +64,7 @@ The raw data is also available as JSON files in [`data/orders_v2/`](/data/orders
    - **Version**: `2.0.0`
    - **Status**: `draft`
    
-4. Update your **Servers** → **Orders**:
+4. Update your **Servers** → **postgres**:
 
    - **Schema**: `orders_v2`
    
@@ -72,7 +72,7 @@ The raw data is also available as JSON files in [`data/orders_v2/`](/data/orders
    Otherwise the checks would still run against the old `orders_v1` tables.
    If your contract has a **Context** with verified statements, update the SQL answers there as well.
 
-6. In **Schemas** → `line_items`, add the `quantity` property (Logical Type `integer`, Physical Type `BIGINT`), and add a **Data Quality** rule requiring it to be greater than 0.
+6. In **Schemas** → `line_items`, add the `quantity` property (Logical Type `integer`, Physical Type `bigint`), and add a **Data Quality** rule requiring it to be greater than 0.
 
 7. Save the updated contract.
    Run the tests and make sure they pass:
