@@ -35,7 +35,7 @@ Do this once before [Exercise 1](part-a/exercise1-put-your-data-under-contract.m
    dataproduct --version
    ```
 
-   You should see `1.2.4` and `0.3.2`. If a command is not found, run `uv tool update-shell` and open a new terminal.
+   You should see `1.2.5` and `0.3.2`. If a command is not found, run `uv tool update-shell` and open a new terminal.
 
 
 ## Start the Database

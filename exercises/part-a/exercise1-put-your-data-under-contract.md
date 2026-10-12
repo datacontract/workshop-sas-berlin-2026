@@ -32,7 +32,7 @@ Your goal is to define a data contract so that consumers of your data know exact
    docker compose exec postgres psql -U workshop -d workshop -c 'SELECT COUNT(*) FROM orders_v1.orders;'
    ```
 
-   You should see `1.2.4` and `5000`. If `datacontract` is not found, run `uv tool update-shell` and open a new terminal.
+   You should see `1.2.5` and `5000`. If `datacontract` is not found, run `uv tool update-shell` and open a new terminal.
 
 
 ## Import the Contract
