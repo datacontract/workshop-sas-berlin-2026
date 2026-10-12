@@ -3,8 +3,8 @@
 #
 # Run from the repository root:
 #   powershell -ExecutionPolicy Bypass -File scripts\install.ps1
-uv tool install --force --python python3.11 'datacontract-cli[all]==1.2.3'
-uv tool install --force --python python3.11 'dataproduct-cli==0.3.1'
+uv tool install --force --python python3.11 'datacontract-cli[all]==1.2.4'
+uv tool install --force --python python3.11 'dataproduct-cli==0.3.2'
 uv tool install 'entropy-data==0.3.24'
 uv tool update-shell
 datacontract --version

@@ -65,8 +65,8 @@ Builds on Parts A and B only. You need a [GitHub](https://github.com) account.
 
          - name: Install the CLIs
            run: |
-             uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.3'
-             uv tool install --python 3.11 'dataproduct-cli==0.3.1'
+             uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.4'
+             uv tool install --python 3.11 'dataproduct-cli==0.3.2'
 
          - name: Lint data contracts
            run: |
@@ -136,7 +136,7 @@ A breaking change in a contract breaks consumers. The pipeline catches it *befor
           - uses: astral-sh/setup-uv@v10.2.0
 
           - name: Install the CLI
-            run: uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.3'
+            run: uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.4'
 
           - name: Compare with the base branch
             env:
