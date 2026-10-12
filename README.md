@@ -1,6 +1,6 @@
-# ODCS + ODPS Workshop at data2day 2026
+# ODCS + ODPS Workshop at SAS Berlin 2026
 
-Workshop repository for "Mit Data Contracts Vertrauen in Daten herstellen" (Getting Started with Data Contracts Using Open-Source Tools) at [data2day 2026](https://www.data2day.de/) in Cologne.
+Workshop repository for "Getting Started with Data Contracts Using Open-Source Tools" at SAS 2026 in Berlin.
 
 Hands-on: put a PostgreSQL dataset under contract with [ODCS](https://bitol-io.github.io/open-data-contract-standard/), describe it as a data product with [ODPS](https://bitol-io.github.io/open-data-product-standard/), and build a derived data product on top using plain SQL.
 

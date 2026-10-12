@@ -11,8 +11,8 @@ Do this once before [Exercise 1](part-a/exercise1-put-your-data-under-contract.m
 1. Clone the workshop repository and change into it:
 
    ```bash
-   git clone https://github.com/datacontract/workshop-data2day-2026.git
-   cd workshop-data2day-2026
+   git clone https://github.com/datacontract/workshop-sas-berlin-2026.git
+   cd workshop-sas-berlin-2026
    ```
 
 
