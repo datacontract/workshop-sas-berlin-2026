@@ -1,0 +1,44 @@
+# Entropy Data (Community Edition) - run the data platform for Part D locally.
+# Copy of https://github.com/entropy-data/entropy-data-ce/blob/main/docker-compose.yaml
+# (plus APPLICATION_SEMANTICS_ENABLED for the semantics in exercise 8)
+#
+#   docker compose -f entropy-data-ce/docker-compose.yaml up -d
+#
+# Then open http://localhost:8081 and set in your .env:
+#   ENTROPY_DATA_HOST=http://localhost:8081
+services:
+  app:
+    image: entropydata/entropy-data-ce:latest
+    restart: always
+    environment:
+      - APPLICATION_HOST_WEB=http://localhost:8081
+      - APPLICATION_SEMANTICS_ENABLED=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_MAIL_HOST=mailhog
+      - SPRING_MAIL_PORT=1025
+    ports:
+      - '8081:8080'
+    depends_on:
+      - postgres
+      - mailhog
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+  mailhog:
+    # Test SMTP server, does not actually send mails
+    # View messages in the web UI http://localhost:8025
+    image: mailhog/mailhog:latest
+    restart: always
+    platform: linux/amd64
+    ports:
+      - "8025:8025"
+volumes:
+  postgres:
+    driver: local

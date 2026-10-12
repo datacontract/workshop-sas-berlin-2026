@@ -1,0 +1,7 @@
+# Keep LF endings on checkout, even on Windows with autocrlf:
+# - *.sh run in Git Bash (CRLF breaks the shebang)
+# - initdb/*.sql and data/*.json are mounted into the Linux postgres container
+#   (a trailing \r breaks psql meta-commands during database initialization)
+* text=auto eol=lf
+# Batch files are safest with CRLF endings
+*.bat text eol=crlf
