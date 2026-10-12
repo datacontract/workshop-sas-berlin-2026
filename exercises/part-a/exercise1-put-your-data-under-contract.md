@@ -331,7 +331,7 @@ AI agents, LLM chat tools, and BI assistants increasingly query data on their ow
           tags: ['pii']
     ```
 
-    A verified statement with an `answer` is a curated answer that agents should reuse. Without an answer, it is a sample question. Check your answer with `psql` first (`docker compose exec postgres psql -U workshop -d workshop`; it returns `876`).
+    A verified statement with an `answer` is a curated answer that agents should reuse. Without an answer, it is a sample question.
 
 2. Add context and `synonyms` to the `orders` schema object, so agents and catalogs understand and find the table:
 
